@@ -24,7 +24,7 @@ export function verifyTelegramAuth(initData: string): {
 
   try {
     validate(initData, BOT_TOKEN, {
-      expiresIn: 3600,
+      expiresIn: 86400,
     });
 
     const parsed = parse(initData);
