@@ -3,14 +3,11 @@ import jwt from "jsonwebtoken";
 import { verifyTelegramAuth } from "../lib/verifyTelegramAuth";
 import prisma from "../prisma";
 import { JWT_SECRET } from "../config/env";
-import { getRealIp } from "../lib/ip";
 
 const router = express.Router();
 
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const clientIp = getRealIp(req);
-
     const { initData, ref } = req.body;
 
     const { valid, user } = verifyTelegramAuth(initData);
@@ -65,21 +62,9 @@ router.post("/", async (req: Request, res: Response) => {
 
     const token = jwt.sign({ id: dbUser.id }, JWT_SECRET, { expiresIn: "7d" });
 
-    await prisma.action.create({
-      data: {
-        userId: dbUser.id,
-        type: "LOGIN",
-        ip: clientIp,
-        data: token,
-      },
-    });
-
-    return res.status(200).json({
-      success: true,
-      data: { token, user: dbUser },
-    });
+    return res.status(200).json({ token });
   } catch (error) {
-    console.error("Auth error:", error);
+    console.error("Authentication error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
