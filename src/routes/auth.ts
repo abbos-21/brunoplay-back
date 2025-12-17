@@ -62,7 +62,10 @@ router.post("/", async (req: Request, res: Response) => {
 
     const token = jwt.sign({ id: dbUser.id }, JWT_SECRET, { expiresIn: "7d" });
 
-    return res.status(200).json({ token });
+    return res.status(200).json({
+      success: true,
+      data: { token, user: dbUser },
+    });
   } catch (error) {
     console.error("Authentication error:", error);
     return res.status(500).json({

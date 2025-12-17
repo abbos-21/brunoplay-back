@@ -1,19 +1,7 @@
 import { validate, parse } from "@tma.js/init-data-node";
 import { BOT_TOKEN } from "../config/env";
 
-export function verifyTelegramAuth(initData: string): {
-  valid: boolean;
-  user?: {
-    id: number;
-    first_name?: string;
-    last_name?: string;
-    username?: string;
-    language_code?: string;
-    is_premium?: boolean;
-    is_bot?: boolean;
-    [key: string]: any;
-  };
-} {
+export function verifyTelegramAuth(initData: string) {
   if (!BOT_TOKEN) {
     throw new Error("BOT_TOKEN is missing in .env");
   }

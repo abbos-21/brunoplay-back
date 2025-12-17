@@ -19,10 +19,7 @@ export async function authenticate(
     }
 
     const token = header.split(" ")[1];
-    const decoded = jwt.verify(
-      token as string,
-      JWT_SECRET
-    ) as unknown as AuthTokenPayload;
+    const decoded = jwt.verify(token, JWT_SECRET) as AuthTokenPayload;
 
     if (!decoded?.id) {
       return res
@@ -36,9 +33,7 @@ export async function authenticate(
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-
-    (req as any).user = user;
-
+    req.user = user;
     next();
   } catch (err) {
     console.error("JWT verification error:", err);
