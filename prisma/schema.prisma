@@ -121,3 +121,10 @@ model Settings {
   rewardForSubscription     Int
 }
 
+model Season {
+  id  Int  @id @default(autoincrement())
+  name String @unique
+  start DateTime
+  end DateTime
+}
+

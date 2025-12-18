@@ -41,6 +41,18 @@ async function main() {
       rewardForSubscription: REWARD_FOR_SUBSCRIPTION,
     },
   });
+
+  const start = new Date();
+  const end = new Date(start);
+  end.setDate(start.getDate() + 30);
+
+  await prisma.season.create({
+    data: {
+      name: "Season 1",
+      start,
+      end,
+    },
+  });
 }
 
 main()

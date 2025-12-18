@@ -7,6 +7,7 @@ import upgradesRouter from "./upgrades";
 import withdrawalsRouter from "./withdrawals";
 import taskRouter from "./task";
 import adminRouter from "./admin";
+import leaderboardRouter from "./leaderboard";
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/upgrades", upgradesRouter);
 router.use("/withdrawals", withdrawalsRouter);
 router.use("/task", taskRouter);
 router.use("/admin", adminRouter);
+router.use("/leaderboard", leaderboardRouter);
 
 export default router;
