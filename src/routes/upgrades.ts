@@ -136,7 +136,7 @@ router.post("/:name", async (req: Request, res: Response) => {
     return err(
       res,
       403,
-      `You cannot upgrade until you reach level ${userLevel + 2}`
+      `You cannot upgrade until you reach level ${userLevel + 1}`
     );
 
   const key = meta.key;
