@@ -10,6 +10,12 @@ router.get("/level/:level", async (req: Request, res: Response) => {
     where: {
       level: Number(level),
     },
+    select: {
+      firstName: true,
+      lastName: true,
+      username: true,
+      totalCoins: true,
+    },
     orderBy: {
       totalCoins: "desc",
     },
