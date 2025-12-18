@@ -125,6 +125,7 @@ router.post("/", async (req: Request, res: Response) => {
         userId,
         amountCoins,
         amountTon,
+        ip: clientIp,
         targetAddress,
         status: "PENDING",
       },
@@ -151,15 +152,6 @@ router.post("/", async (req: Request, res: Response) => {
         )}</code> TON to <code>${targetAddress}</code> successful.`,
         { parse_mode: "HTML" }
       );
-
-      await prisma.action.create({
-        data: {
-          userId: userId,
-          type: "WITHDRAW",
-          ip: clientIp,
-          data: JSON.stringify({ amountTon, targetAddress }),
-        },
-      });
 
       return res.status(200).json({
         success: true,

@@ -74,6 +74,7 @@ model Withdrawal {
   amountCoins   Float
   amountTon     Float
   
+  ip            String
   targetAddress String
   
   txHash        String?
