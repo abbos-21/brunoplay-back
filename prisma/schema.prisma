@@ -22,7 +22,7 @@ model User {
   totalCoins       Float     @default(0)
   coins            Float     @default(0)
   level            Int       @default(1)
-  miningRate       Float     @default(0.01)
+  miningRate       Float     @default(0.025)
 
   referredById     Int?
   referredBy       User?     @relation("UserReferrals", fields: [referredById], references: [id])
@@ -34,13 +34,13 @@ model User {
   lastMiningTick   DateTime?
   isMining         Boolean   @default(false)
   tempCoins        Float     @default(0)
-  vaultCapacity    Float     @default(100)
+  vaultCapacity    Float     @default(5)
 
-  currentHealth    Float     @default(3600)
-  maxHealth        Float     @default(3600)
+  currentHealth    Float     @default(600)
+  maxHealth        Float     @default(600)
 
-  currentEnergy    Float     @default(1800)
-  maxEnergy        Float     @default(1800)
+  currentEnergy    Float     @default(300)
+  maxEnergy        Float     @default(300)
 
   healthPerSecond  Float     @default(1)
   energyPerSecond  Float     @default(1)
