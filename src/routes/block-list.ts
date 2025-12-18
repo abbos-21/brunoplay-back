@@ -4,7 +4,7 @@ import prisma from "../prisma";
 const router = express.Router();
 
 router.get("/", async (req: Request, res: Response) => {
-  const users = prisma.user.findMany({
+  const users = await prisma.user.findMany({
     where: {
       isBlocked: true,
     },
