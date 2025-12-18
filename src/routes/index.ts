@@ -8,6 +8,7 @@ import withdrawalsRouter from "./withdrawals";
 import taskRouter from "./task";
 import adminRouter from "./admin";
 import leaderboardRouter from "./leaderboard";
+import blockListRouter from "./block-list";
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use("/withdrawals", withdrawalsRouter);
 router.use("/task", taskRouter);
 router.use("/admin", adminRouter);
 router.use("/leaderboard", leaderboardRouter);
+router.use("/block-list", blockListRouter);
 
 export default router;
