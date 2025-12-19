@@ -13,6 +13,7 @@ async function loadSettings() {
 
   return {
     REFERRAL_REWARDS: s.referralRewards as Record<number, number>,
+    SPIN_WHEEL_COOLDOWN_HOURS: s.spinWheelCooldownHours,
     SPIN_WHEEL_PROBABILITY_DATA: s.spinWheelProbabilities as Record<
       number,
       number

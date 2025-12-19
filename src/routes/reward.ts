@@ -79,40 +79,40 @@ router.get(`/${ENERGY_REWARD_SECRET}`, async (req: Request, res: Response) => {
   }
 });
 
-router.get(`/${SPIN_REWARD_SECRET}`, async (req: Request, res: Response) => {
-  try {
-    const userId = req.query.userId;
-    if (!userId)
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing userId parameter" });
+// router.get(`/${SPIN_REWARD_SECRET}`, async (req: Request, res: Response) => {
+//   try {
+//     const userId = req.query.userId;
+//     if (!userId)
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Missing userId parameter" });
 
-    const user = await prisma.user.findUnique({
-      where: { telegramId: String(userId) },
-    });
-    if (!user)
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+//     const user = await prisma.user.findUnique({
+//       where: { telegramId: String(userId) },
+//     });
+//     if (!user)
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found" });
 
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: { canSpin: true },
-    });
+//     const updatedUser = await prisma.user.update({
+//       where: { id: user.id },
+//       data: { canSpin: true },
+//     });
 
-    return res.status(200).json({
-      success: true,
-      message: "Operation successful",
-      data: { user: updatedUser },
-    });
-  } catch (error) {
-    console.error("Spin reward error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
-});
+//     return res.status(200).json({
+//       success: true,
+//       message: "Operation successful",
+//       data: { user: updatedUser },
+//     });
+//   } catch (error) {
+//     console.error("Spin reward error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//     });
+//   }
+// });
 
 router.get(`/${TASK_REWARD_SECRET}`, async (req: Request, res: Response) => {
   try {

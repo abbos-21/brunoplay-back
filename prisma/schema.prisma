@@ -56,8 +56,10 @@ model User {
 
   isBlocked Boolean  @default(false)
 
+  lastWheelSpin DateTime?
+
   subscriptions    String    @default("[]")
-  canSpin   Boolean @default(true)
+  // canSpin   Boolean @default(true)
 }
 
 model Withdrawal {
@@ -101,6 +103,7 @@ model Settings {
   id                        Int      @id @default(1)
 
   referralRewards           Json     // REFERRAL_REWARDS
+  spinWheelCooldownHours    Float
   spinWheelProbabilities    Json     // SPIN_WHEEL_PROBABILITY_DATA
 
   energyPrice               Int
