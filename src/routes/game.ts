@@ -295,8 +295,8 @@ router.post("/spin-wheel", async (req: Request, res: Response) => {
   const now = new Date();
   if (user.lastWheelSpin) {
     const hours = (now.getTime() - +new Date(user.lastWheelSpin)) / 3600000;
-    if (hours < SPIN_WHEEL_COOLDOWN_HOURS) {
-      const rem = SPIN_WHEEL_COOLDOWN_HOURS - hours;
+    if (hours < (SPIN_WHEEL_COOLDOWN_HOURS ?? 0)) {
+      const rem = (SPIN_WHEEL_COOLDOWN_HOURS ?? 0) - hours;
       const h = Math.floor(rem);
       const m = Math.floor((rem - h) * 60);
       return error(res, 403, `Wait ${h}h ${m}m`);
@@ -338,7 +338,7 @@ router.get("/spin-wheel/status", async (req: Request, res: Response) => {
   if (user.lastWheelSpin) {
     const lastSpinTime = new Date(user.lastWheelSpin).getTime();
     const diff = now.getTime() - lastSpinTime;
-    const cooldownMs = SPIN_WHEEL_COOLDOWN_HOURS * 3600000;
+    const cooldownMs = (SPIN_WHEEL_COOLDOWN_HOURS ?? 0) * 3600000;
 
     if (diff < cooldownMs) {
       canSpin = false;
