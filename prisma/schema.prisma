@@ -103,7 +103,7 @@ model Settings {
   id                        Int      @id @default(1)
 
   referralRewards           Json     // REFERRAL_REWARDS
-  spinWheelCooldownHours    Float?
+  spinWheelCooldownHours    Float  @default(0.05)
   spinWheelProbabilities    Json     // SPIN_WHEEL_PROBABILITY_DATA
 
   energyPrice               Int
