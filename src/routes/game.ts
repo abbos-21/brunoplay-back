@@ -245,18 +245,6 @@ router.post("/spin-wheel", async (req: Request, res: Response) => {
   if (!user) return error(res, 404, "User not found");
 
   const settings = await getSettings();
-  const SPIN_WHEEL_COOLDOWN_HOURS = settings.SPIN_WHEEL_COOLDOWN_HOURS;
-
-  const now = new Date();
-  if (user.lastWheelSpin) {
-    const hours = (now.getTime() - +new Date(user.lastWheelSpin)) / 3600000;
-    if (hours < SPIN_WHEEL_COOLDOWN_HOURS) {
-      const rem = SPIN_WHEEL_COOLDOWN_HOURS - hours;
-      const h = Math.floor(rem);
-      const m = Math.floor((rem - h) * 60);
-      return error(res, 403, `Wait ${h}h ${m}m`);
-    }
-  }
 
   const SPIN_WHEEL_PROBABILITY_DATA = settings.SPIN_WHEEL_PROBABILITY_DATA;
 
@@ -266,7 +254,7 @@ router.post("/spin-wheel", async (req: Request, res: Response) => {
     data: {
       coins: user.coins + prize,
       totalCoins: user.totalCoins + prize,
-      lastWheelSpin: now,
+      canSpin: false,
     },
   });
 
@@ -284,46 +272,12 @@ router.get("/spin-wheel/status", async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return error(res, 404, "User not found");
 
-  const settings = await getSettings();
-  const SPIN_WHEEL_COOLDOWN_HOURS = settings.SPIN_WHEEL_COOLDOWN_HOURS;
-  const now = new Date();
-  let canSpin = true;
-  let remainingMs = 0;
-
-  if (user.lastWheelSpin) {
-    const lastSpinTime = new Date(user.lastWheelSpin).getTime();
-    const diff = now.getTime() - lastSpinTime;
-    const cooldownMs = SPIN_WHEEL_COOLDOWN_HOURS * 3600000;
-
-    if (diff < cooldownMs) {
-      canSpin = false;
-      remainingMs = cooldownMs - diff;
-    }
-  }
-
-  let remaining = null;
-  if (!canSpin && remainingMs > 0) {
-    const totalSeconds = Math.floor(remainingMs / 1000);
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    remaining = {
-      hours,
-      minutes,
-      seconds,
-      totalSeconds, // optional: full countdown in seconds
-      remainingMs, // optional: raw milliseconds
-    };
-  }
+  const canSpin = user.canSpin;
 
   res.json({
     success: true,
     data: {
       canSpin,
-      remaining, // null if can spin, object if cooldown active
-      lastWheelSpin: user.lastWheelSpin,
     },
   });
 });

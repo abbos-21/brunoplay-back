@@ -50,8 +50,6 @@ model User {
   energyLevel      Int       @default(1)
   healthLevel      Int       @default(1)
 
-  lastWheelSpin DateTime?
-
   withdrawals Withdrawal[]
 
   actions Action[]
@@ -59,6 +57,7 @@ model User {
   isBlocked Boolean  @default(false)
 
   subscriptions    String    @default("[]")
+  canSpin   Boolean @default(true)
 }
 
 model Withdrawal {
@@ -102,7 +101,6 @@ model Settings {
   id                        Int      @id @default(1)
 
   referralRewards           Json     // REFERRAL_REWARDS
-  spinWheelCooldownHours    Float
   spinWheelProbabilities    Json     // SPIN_WHEEL_PROBABILITY_DATA
 
   energyPrice               Int
