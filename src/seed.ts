@@ -22,7 +22,6 @@ async function main() {
     update: {},
     create: {
       referralRewards: REFERRAL_REWARDS,
-      spinWheelCooldownHours: SPIN_WHEEL_COOLDOWN_HOURS,
       spinWheelProbabilities: SPIN_WHEEL_PROBABILITY_DATA,
 
       energyPrice: ENERGY_PRICE,
