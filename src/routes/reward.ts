@@ -132,7 +132,7 @@ router.get(`/${TASK_REWARD_SECRET}`, async (req: Request, res: Response) => {
 
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
-      data: { coins: { increment: 100 } },
+      data: { coins: { increment: 30 } },
     });
 
     return res.status(200).json({
