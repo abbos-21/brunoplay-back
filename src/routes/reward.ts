@@ -9,7 +9,7 @@ import {
 
 const router = express.Router();
 
-router.post(`/${HEALTH_REWARD_SECRET}`, async (req: Request, res: Response) => {
+router.get(`/${HEALTH_REWARD_SECRET}`, async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId;
     if (!userId)
@@ -44,7 +44,7 @@ router.post(`/${HEALTH_REWARD_SECRET}`, async (req: Request, res: Response) => {
   }
 });
 
-router.post(`/${ENERGY_REWARD_SECRET}`, async (req: Request, res: Response) => {
+router.get(`/${ENERGY_REWARD_SECRET}`, async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId;
     if (!userId)
