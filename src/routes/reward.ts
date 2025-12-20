@@ -114,7 +114,7 @@ router.get(`/${ENERGY_REWARD_SECRET}`, async (req: Request, res: Response) => {
 //   }
 // });
 
-router.post(`/${TASK_REWARD_SECRET}`, async (req: Request, res: Response) => {
+router.get(`/${TASK_REWARD_SECRET}`, async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId;
     if (!userId)
