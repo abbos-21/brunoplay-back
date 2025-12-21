@@ -153,7 +153,7 @@ router.post("/", async (req: Request, res: Response) => {
       //   { parse_mode: "HTML" }
       // );
 
-      await bot.api.sendMessage(
+      bot.api.sendMessage(
         Number(user.telegramId),
         `Withdrawal of <code>${amountTon.toFixed(
           2

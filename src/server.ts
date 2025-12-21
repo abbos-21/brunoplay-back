@@ -20,7 +20,7 @@ export async function startServer() {
 
   app.use(express.json());
 
-  await bot.start();
+  bot.start();
   await checkIfBotIsAdmin();
 
   // await sendMessageToAllBotUsers(
