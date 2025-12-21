@@ -107,10 +107,18 @@ router.post("/", async (req: Request, res: Response) => {
       });
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
+
     if (!user)
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
+
+    if (user.isBlocked) {
+      return res.status(400).json({
+        success: false,
+        message: "User is blocked",
+      });
+    }
 
     if (user.coins < amountCoins)
       return res.status(400).json({
