@@ -145,12 +145,22 @@ router.post("/", async (req: Request, res: Response) => {
         data: { coins: { decrement: amountCoins } },
       });
 
-      bot.telegram.sendMessage(
-        user.telegramId,
+      // bot.telegram.sendMessage(
+      //   user.telegramId,
+      //   `Withdrawal of <code>${amountTon.toFixed(
+      //     2
+      //   )}</code> TON to <code>${targetAddress}</code> successful.`,
+      //   { parse_mode: "HTML" }
+      // );
+
+      await bot.api.sendMessage(
+        Number(user.telegramId),
         `Withdrawal of <code>${amountTon.toFixed(
           2
         )}</code> TON to <code>${targetAddress}</code> successful.`,
-        { parse_mode: "HTML" }
+        {
+          parse_mode: "HTML",
+        }
       );
 
       return res.status(200).json({
