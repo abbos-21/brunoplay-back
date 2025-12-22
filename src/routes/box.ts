@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import prisma from "../prisma";
 import { authenticate } from "../middleware/authenticate";
+import { generateRewards, rewards } from "../lib/randomBoxRewards";
 
 const PLAY_BOX_PRICE = 10000;
 
@@ -38,6 +39,34 @@ router.post("/pay-with-coins", async (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "Operation successful. You can play box now",
+  });
+});
+
+router.post("/get-rewards", async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+
+  if (!user.canPlayBox) {
+    return res
+      .status(400)
+      .json({ success: false, message: "You cannot play the box game" });
+  }
+
+  const rewardList = generateRewards(rewards, 12);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      rewardList: { rewardList },
+    },
   });
 });
 
