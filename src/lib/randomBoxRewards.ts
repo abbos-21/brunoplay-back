@@ -13,6 +13,8 @@ export const rewards = [
   { id: 12, name: "Gift", chance: 0.1 },
 ];
 
+export const rewardById = new Map(rewards.map((r) => [r.id, r]));
+
 function weightedRoll(items: typeof rewards) {
   const total = items.reduce((sum, i) => sum + i.chance, 0);
   let roll = Math.random() * total;
