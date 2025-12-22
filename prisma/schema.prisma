@@ -60,6 +60,7 @@ model User {
 
   subscriptions    String    @default("[]")
   // canSpin   Boolean @default(true)
+  canPlayBox Boolean @default(false)
 }
 
 model Withdrawal {

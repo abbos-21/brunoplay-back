@@ -10,6 +10,7 @@ import adminRouter from "./admin";
 import leaderboardRouter from "./leaderboard";
 import blockListRouter from "./block-list";
 import starsRouter from "./stars";
+import boxRouter from "./box";
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use("/admin", adminRouter);
 router.use("/leaderboard", leaderboardRouter);
 router.use("/block-list", blockListRouter);
 router.use("/stars", starsRouter);
+router.use("/box", boxRouter);
 
 export default router;

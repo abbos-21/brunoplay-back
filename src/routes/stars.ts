@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/create-invoice", async (req: Request, res: Response) => {
   const invoiceLink = await bot.api.createInvoiceLink(
-    "Title", //title
+    "Play box", //title
     "Some description", //description
     "{}", //payload
     "", // For Telegram Stars payment this should be empty
