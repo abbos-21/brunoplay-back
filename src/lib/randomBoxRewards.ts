@@ -15,6 +15,8 @@ export const rewards = [
 
 export const rewardById = new Map(rewards.map((r) => [r.id, r]));
 
+const UNIQUE_REWARD_IDS = new Set([1, 2]); // Energy & Health
+
 function weightedRoll(items: typeof rewards) {
   const total = items.reduce((sum, i) => sum + i.chance, 0);
   let roll = Math.random() * total;
@@ -28,9 +30,23 @@ function weightedRoll(items: typeof rewards) {
 }
 
 export function generateRewards(items: typeof rewards, count: number) {
-  const result = [];
-  for (let i = 0; i < count; i++) {
-    result.push(weightedRoll(items));
+  const result: typeof rewards = [];
+  const pickedUnique = new Set<number>();
+
+  while (result.length < count) {
+    const reward = weightedRoll(items);
+
+    // Prevent duplicate Energy / Health
+    if (UNIQUE_REWARD_IDS.has(reward.id) && pickedUnique.has(reward.id)) {
+      continue; // re-roll
+    }
+
+    if (UNIQUE_REWARD_IDS.has(reward.id)) {
+      pickedUnique.add(reward.id);
+    }
+
+    result.push(reward);
   }
+
   return result;
 }
