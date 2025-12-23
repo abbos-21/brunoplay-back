@@ -26,6 +26,7 @@
 
 import { Bot } from "grammy";
 import { BOT_TOKEN, WEB_APP_URL } from "../config/env";
+import prisma from "../prisma";
 
 if (!BOT_TOKEN) {
   throw new Error("BOT_TOKEN is missing in .env");
@@ -50,4 +51,28 @@ bot.command("start", async (ctx) => {
 
 bot.command("help", async (ctx) => {
   await ctx.reply("This bot powers the Mini App!");
+});
+
+bot.on("message:successful_payment", async (ctx) => {
+  const payment = ctx.message.successful_payment;
+
+  if (payment.currency !== "XTR") return;
+
+  const payload = JSON.parse(payment.invoice_payload);
+
+  const userId = payload.userId;
+  const product = payload.product;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      canPlayBox: true,
+    },
+  });
+
+  await ctx.reply("✅ Payment successful! You can play the box game now.");
+});
+
+bot.on("pre_checkout_query", async (ctx) => {
+  await ctx.answerPreCheckoutQuery(true);
 });
