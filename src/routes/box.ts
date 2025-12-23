@@ -97,6 +97,12 @@ router.post("/reward-user", async (req: Request, res: Response) => {
   const userId = req.user.id;
   const { rewardIds } = req.body as { rewardIds: number[] };
 
+  if (rewardIds.length > 3) {
+    return res
+      .status(400)
+      .json({ success: false, message: "You can only choose 3 rewards" });
+  }
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
