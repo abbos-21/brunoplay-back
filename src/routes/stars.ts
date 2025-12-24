@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import prisma from "../prisma";
 import { bot } from "../bot";
 import { authenticate } from "../middleware/authenticate";
 
