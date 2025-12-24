@@ -24,7 +24,7 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
     payload, //payload
     "", // For Telegram Stars payment this should be empty
     "XTR", //currency
-    [{ amount: 1, label: "Diamond" }]
+    [{ amount: 10, label: "Play box" }]
   );
 
   res.status(200).json({
