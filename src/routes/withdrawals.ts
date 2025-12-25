@@ -128,7 +128,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     const amountTon = amountCoins / COIN_TO_TON_RATE;
 
-    const withdrawal = await prisma.withdrawal.create({
+    await prisma.withdrawal.create({
       data: {
         userId,
         amountCoins,
@@ -139,60 +139,64 @@ router.post("/", async (req: Request, res: Response) => {
       },
     });
 
-    try {
-      const date = new Date();
-      await sendTonTransaction(targetAddress, amountTon);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { coins: { decrement: amountCoins } },
+    });
 
-      await prisma.withdrawal.update({
-        where: { id: withdrawal.id },
-        data: { status: "COMPLETED", createdAt: date },
-      });
+    res.status(200).json({
+      success: true,
+      message:
+        "The operation was successful. Your funds will be sent within 48 hours.",
+      data: { amountTon, targetAddress },
+    });
 
-      const user = await prisma.user.update({
-        where: { id: userId },
-        data: { coins: { decrement: amountCoins } },
-      });
+    // try {
+    //   const date = new Date();
+    //   await sendTonTransaction(targetAddress, amountTon);
 
-      // bot.telegram.sendMessage(
-      //   user.telegramId,
-      //   `Withdrawal of <code>${amountTon.toFixed(
-      //     2
-      //   )}</code> TON to <code>${targetAddress}</code> successful.`,
-      //   { parse_mode: "HTML" }
-      // );
+    //   await prisma.withdrawal.update({
+    //     where: { id: withdrawal.id },
+    //     data: { status: "COMPLETED", createdAt: date },
+    //   });
 
-      await bot.api.sendMessage(
-        Number(user.telegramId),
-        `Withdrawal of <code>${amountTon.toFixed(
-          2
-        )}</code> TON to <code>${targetAddress}</code> successful.`,
-        {
-          parse_mode: "HTML",
-        }
-      );
+    //   const user = await prisma.user.update({
+    //     where: { id: userId },
+    //     data: { coins: { decrement: amountCoins } },
+    //   });
 
-      return res.status(200).json({
-        success: true,
-        message: "Withdrawal completed successfully",
-        data: { amountTon, targetAddress },
-      });
-    } catch (txError: any) {
-      console.error("TON transaction failed:", txError);
+    //   await bot.api.sendMessage(
+    //     Number(user.telegramId),
+    //     `Withdrawal of <code>${amountTon.toFixed(
+    //       2
+    //     )}</code> TON to <code>${targetAddress}</code> successful.`,
+    //     {
+    //       parse_mode: "HTML",
+    //     }
+    //   );
 
-      await prisma.withdrawal.update({
-        where: { id: withdrawal.id },
-        data: {
-          status: "FAILED",
-          errorMessage: txError?.message ?? "Unknown TON transaction error",
-        },
-      });
+    // return res.status(200).json({
+    //   success: true,
+    //   message: "Withdrawal completed successfully",
+    //   data: { amountTon, targetAddress },
+    // });
+    // } catch (txError: any) {
+    //   console.error("TON transaction failed:", txError);
 
-      return res.status(500).json({
-        success: false,
-        message: "TON transaction failed",
-        error: txError?.message,
-      });
-    }
+    //   await prisma.withdrawal.update({
+    //     where: { id: withdrawal.id },
+    //     data: {
+    //       status: "FAILED",
+    //       errorMessage: txError?.message ?? "Unknown TON transaction error",
+    //     },
+    //   });
+
+    //   return res.status(500).json({
+    //     success: false,
+    //     message: "TON transaction failed",
+    //     error: txError?.message,
+    //   });
+    // }
   } catch (error) {
     console.error("Withdrawal request error:", error);
     return res.status(500).json({
@@ -203,3 +207,11 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 export default router;
+
+// bot.telegram.sendMessage(
+//   user.telegramId,
+//   `Withdrawal of <code>${amountTon.toFixed(
+//     2
+//   )}</code> TON to <code>${targetAddress}</code> successful.`,
+//   { parse_mode: "HTML" }
+// );
