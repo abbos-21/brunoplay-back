@@ -63,10 +63,8 @@ model User {
   subscriptions    String    @default("[]")
   // canSpin   Boolean @default(true)
   canPlayBox Boolean @default(false)
-  canRefillEnergy Boolean @default(true)
-  canRefillHealth Boolean @default(true)
-  energyRefillPerDay Int @default(20)
-  healthRefillPerDay Int @default(20)
+  energyRefillLimit Int @default(20)
+  healthRefillLimit Int @default(20)
 }
 
 model Stars {

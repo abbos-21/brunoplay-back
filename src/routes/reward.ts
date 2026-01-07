@@ -25,9 +25,18 @@ router.get(`/${HEALTH_REWARD_SECRET}`, async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, message: "User not found" });
 
+    if (user.healthRefillLimit === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Limit exceeded" });
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
-      data: { currentHealth: user.maxHealth },
+      data: {
+        currentHealth: user.maxHealth,
+        healthRefillLimit: { decrement: 1 },
+      },
     });
 
     return res.status(200).json({
@@ -60,9 +69,18 @@ router.get(`/${ENERGY_REWARD_SECRET}`, async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, message: "User not found" });
 
+    if (user.energyRefillLimit === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Limit exceeded" });
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
-      data: { currentEnergy: user.maxEnergy },
+      data: {
+        currentEnergy: user.maxEnergy,
+        energyRefillLimit: { decrement: 1 },
+      },
     });
 
     return res.status(200).json({
