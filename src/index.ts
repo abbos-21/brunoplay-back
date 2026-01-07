@@ -1,4 +1,5 @@
 import { startServer } from "./server";
+import "./cron";
 
 (async () => {
   try {
