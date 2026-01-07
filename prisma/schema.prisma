@@ -154,3 +154,8 @@ model Season {
   end DateTime
 }
 
+model JobState {
+  name        String   @id
+  lastRunAt   DateTime
+  nextRunAt   DateTime
+}
