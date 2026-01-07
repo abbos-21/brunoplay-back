@@ -306,20 +306,49 @@ router.post("/spin-wheel", async (req: Request, res: Response) => {
   const SPIN_WHEEL_PROBABILITY_DATA = settings.SPIN_WHEEL_PROBABILITY_DATA;
 
   const prize = selectPrize(SPIN_WHEEL_PROBABILITY_DATA);
-  const updated = await prisma.user.update({
-    where: { id },
-    data: {
-      coins: user.coins + prize,
-      totalCoins: user.totalCoins + prize,
-      lastWheelSpin: now,
-    },
-  });
 
-  res.json({
-    success: true,
-    message: `Won ${prize} coins`,
-    data: { user: updated, prize },
-  });
+  if (prize === 1) {
+    const gift = await prisma.gifts.create({
+      data: {
+        userId: id,
+        name: "Some gift",
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: "Won the gift",
+      data: { gift, prize },
+    });
+  } else if (prize === 13) {
+    const star = await prisma.stars.create({
+      data: {
+        userId: id,
+        amount: 13,
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: "Won the star",
+      data: { star, prize },
+    });
+  } else {
+    const updated = await prisma.user.update({
+      where: { id },
+      data: {
+        coins: user.coins + prize,
+        totalCoins: user.totalCoins + prize,
+        lastWheelSpin: now,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: `Won ${prize} coins`,
+      data: { user: updated, prize },
+    });
+  }
 });
 
 router.get("/spin-wheel/status", async (req: Request, res: Response) => {
