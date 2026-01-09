@@ -8,154 +8,196 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+///////////////////////
+//        USER       //
+///////////////////////
+
 model User {
-  id               Int       @id @default(autoincrement())
-  telegramId       String    @unique
-  username         String?
-  firstName        String?
-  lastName         String?
-  languageCode     String?
-  isBot            Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id           Int      @id @default(autoincrement())
+  telegramId   String   @unique
+  username     String?
+  firstName    String?
+  lastName     String?
+  languageCode String?
+  isBot        Boolean  @default(false)
 
-  totalCoins       Float     @default(0)
-  coins            Float     @default(0)
-  level            Int       @default(1)
-  miningRate       Float     @default(0.025)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  referredById     Int?
-  referredBy       User?     @relation("UserReferrals", fields: [referredById], references: [id])
-  referrals        User[]    @relation("UserReferrals")
+  // Economy
+  totalCoins Float @default(0)
+  coins      Float @default(0)
+  level      Int   @default(1)
+  miningRate Float @default(0.025)
 
-  rewardedLevels   String    @default("[]")
-  referralEarnings Float     @default(0)
+  // Referral system (SELF RELATION)
+  referredById Int?
+  referredBy   User?  @relation("UserReferrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals User[] @relation("UserReferrals")
 
-  lastMiningTick   DateTime?
-  isMining         Boolean   @default(false)
-  tempCoins        Float     @default(0)
-  vaultCapacity    Float     @default(5)
+  rewardedLevels   String @default("[]")
+  referralEarnings Float  @default(0)
 
-  currentHealth    Float     @default(600)
-  maxHealth        Float     @default(600)
+  // Mining
+  lastMiningTick DateTime?
+  isMining       Boolean @default(false)
+  tempCoins      Float   @default(0)
+  vaultCapacity  Float   @default(5)
 
-  currentEnergy    Float     @default(300)
-  maxEnergy        Float     @default(300)
+  // Health
+  currentHealth Float @default(600)
+  maxHealth     Float @default(600)
 
-  healthPerSecond  Float     @default(1)
-  energyPerSecond  Float     @default(1)
+  // Energy
+  currentEnergy Float @default(300)
+  maxEnergy     Float @default(300)
 
-  vaultLevel       Int       @default(1)
-  miningRateLevel  Int       @default(1)
-  energyLevel      Int       @default(1)
-  healthLevel      Int       @default(1)
+  healthPerSecond Float @default(1)
+  energyPerSecond Float @default(1)
 
+  // Levels
+  vaultLevel      Int @default(1)
+  miningRateLevel Int @default(1)
+  energyLevel     Int @default(1)
+  healthLevel     Int @default(1)
+
+  // Relations
   withdrawals Withdrawal[]
-  stars Stars[]
-  gifts Gifts[]
+  stars       Stars[]
+  gifts       Gifts[]
+  actions     Action[]
 
-  actions Action[]
-
-  isBlocked Boolean  @default(false)
+  // Flags
+  isBlocked Boolean @default(false)
 
   lastWheelSpin DateTime?
 
-  subscriptions    String    @default("[]")
-  // canSpin   Boolean @default(true)
-  canPlayBox Boolean @default(false)
-  energyRefillLimit Int @default(20)
-  healthRefillLimit Int @default(20)
+  subscriptions      String @default("[]")
+  canPlayBox         Boolean @default(false)
+  energyRefillLimit  Int     @default(20)
+  healthRefillLimit  Int     @default(20)
 }
+
+///////////////////////
+//      STARS        //
+///////////////////////
 
 model Stars {
-  id            Int       @id @default(autoincrement())
-  userId        Int
-  user          User      @relation(fields: [userId], references: [id])
+  id     Int @id @default(autoincrement())
+  userId Int
 
-  amount  Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  amount Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+///////////////////////
+//      GIFTS        //
+///////////////////////
 
 model Gifts {
-  id            Int       @id @default(autoincrement())
-  userId        Int
-  user          User      @relation(fields: [userId], references: [id])
-  name  String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id     Int @id @default(autoincrement())
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+///////////////////////
+//    WITHDRAWAL     //
+///////////////////////
 
 model Withdrawal {
-  id            Int       @id @default(autoincrement())
-  userId        Int
-  user          User      @relation(fields: [userId], references: [id])
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  status        String    @default("PENDING")
-  
-  amountCoins   Float
-  amountTon     Float
-  
+  id     Int @id @default(autoincrement())
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  status String @default("PENDING")
+
+  amountCoins Float
+  amountTon   Float
+
   ip            String
   targetAddress String
-  
-  txHash        String?
-  errorMessage  String?
+
+  txHash       String?
+  errorMessage String?
 }
+
+///////////////////////
+//      ACTION       //
+///////////////////////
 
 model Action {
-  id            Int @id @default(autoincrement())
-  userId        Int
-  user          User      @relation(fields: [userId], references: [id])
-  type          String
-  ip            String
-  time          DateTime @default(now())
-  data          String
+  id     Int @id @default(autoincrement())
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type String
+  ip   String
+  time DateTime @default(now())
+  data String
 }
 
+///////////////////////
+//      ADMIN        //
+///////////////////////
+
 model Admin {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
   createdAt DateTime @default(now())
 }
 
+///////////////////////
+//     SETTINGS      //
+///////////////////////
+
 model Settings {
-  id                        Int      @id @default(1)
+  id Int @id @default(1)
 
-  referralRewards           Json     // REFERRAL_REWARDS
-  spinWheelCooldownHours    Float  @default(0.05)
-  spinWheelProbabilities    Json     // SPIN_WHEEL_PROBABILITY_DATA
+  referralRewards        Json
+  spinWheelCooldownHours Float @default(0.05)
+  spinWheelProbabilities Json
 
-  energyPrice               Int
-  healthPrice               Int
+  energyPrice Int
+  healthPrice Int
 
-  upgradables               Json     // UPGRADABLES
-  upgradeCosts              Json     // UPGRADE_COSTS
+  upgradables         Json
+  upgradeCosts        Json
+  upgradablesMaxLevel Int
 
-  upgradablesMaxLevel       Int
+  coinToTonRate         Int
+  minimumCoinWithdrawal Int
+  maximumCoinWithdrawal Int
 
-  coinToTonRate             Int
-  minimumCoinWithdrawal     Int
-  maximumCoinWithdrawal     Int
-
-  channels                  Json     // CHANNELS array
-  rewardForSubscription     Int
+  channels              Json
+  rewardForSubscription Int
 }
+
+///////////////////////
+//      SEASON       //
+///////////////////////
 
 model Season {
-  id  Int  @id @default(autoincrement())
-  name String @unique
+  id    Int      @id @default(autoincrement())
+  name  String   @unique
   start DateTime
-  end DateTime
+  end   DateTime
 }
 
+///////////////////////
+//    JOB STATE      //
+///////////////////////
+
 model JobState {
-  name        String   @id
-  lastRunAt   DateTime
-  nextRunAt   DateTime
+  name      String   @id
+  lastRunAt DateTime
+  nextRunAt DateTime
 }
