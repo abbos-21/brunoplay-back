@@ -1,99 +1,135 @@
+// import { bot } from ".";
+// import { getSettings } from "../config/settings";
+// import { CHANNELS } from "../config/game";
+// import prisma from "../prisma";
+
+// export async function checkIfBotIsAdmin(): Promise<boolean> {
+//   const botId = (await bot.telegram.getMe()).id;
+//   const failures: string[] = [];
+
+//   const settings = await getSettings();
+//   const CHANNELS = settings.CHANNELS;
+
+//   for (const channel of CHANNELS) {
+//     try {
+//       const member = await bot.telegram.getChatMember(channel, botId);
+//       if (!["administrator", "creator"].includes(member.status)) {
+//         failures.push(`${channel}: '${member.status}'`);
+//       }
+//     } catch (err: any) {
+//       failures.push(`${channel}: ${err.message}`);
+//     }
+//   }
+
+//   if (failures.length > 0) {
+//     console.error("Bot is not an admin in the following channels:");
+//     failures.forEach((f) => console.error(` - ${f}`));
+//     return false;
+//   }
+
+//   return true;
+// }
+
+// export async function checkIfUserIsSubscribed(
+//   telegramId: string,
+//   channelUsername: string
+// ): Promise<boolean> {
+//   const isBotAdmin = await checkIfBotIsAdmin();
+//   if (!isBotAdmin) return false;
+
+//   try {
+//     const member = await bot.telegram.getChatMember(
+//       channelUsername,
+//       Number(telegramId)
+//     );
+
+//     const subscribedStatuses = ["member", "administrator", "creator"] as const;
+//     const isSubscribed = subscribedStatuses.includes(member.status as any);
+
+//     return isSubscribed;
+//   } catch (err: any) {
+//     console.warn(
+//       `Failed to check subscription for user ${telegramId} in ${channelUsername}: ${err.message}`
+//     );
+//     return false;
+//   }
+// }
+
+// export async function sendMessageToAllBotUsers(message: string) {
+//   const users = await prisma.user.findMany({ select: { telegramId: true } });
+
+//   for (const user of users) {
+//     const targetId = user.telegramId;
+
+//     try {
+//       await bot.telegram.sendMessage(targetId, message);
+
+//       await new Promise((resolve) => setTimeout(resolve, 50));
+//     } catch (error: any) {
+//       console.log(`⚠️ Failed to send to ${targetId}:`, error.message);
+//     }
+//   }
+
+//   console.log("--- Broadcast Complete ---");
+// }
+
 import { bot } from ".";
 import { getSettings } from "../config/settings";
 import prisma from "../prisma";
-import PQueue from "p-queue";
-
-/* ------------------------------------------------------------------ */
-/*                         TELEGRAM RATE LIMIT                          */
-/* ------------------------------------------------------------------ */
-
-// Telegram-safe request queue (prevents 429)
-const telegramQueue = new PQueue({
-  interval: 1000, // 1 second
-  intervalCap: 25, // max 25 requests per second
-});
-
-/* ------------------------------------------------------------------ */
-/*                     BOT ADMIN CHECK (NO CACHE)                       */
-/* ------------------------------------------------------------------ */
 
 export async function checkIfBotIsAdmin(): Promise<boolean> {
-  try {
-    const botId = (await telegramQueue.add(() => bot.api.getMe())).id;
-    const { CHANNELS } = await getSettings();
+  const botInfo = await bot.api.getMe();
+  const botId = botInfo.id;
 
-    for (const channel of CHANNELS) {
-      const member = await telegramQueue.add(() =>
-        bot.api.getChatMember(channel, botId)
-      );
+  const failures: string[] = [];
+
+  const settings = await getSettings();
+  const CHANNELS = settings.CHANNELS;
+
+  for (const channel of CHANNELS) {
+    try {
+      const member = await bot.api.getChatMember(channel, botId);
 
       if (!["administrator", "creator"].includes(member.status)) {
-        console.error(`❌ Bot is not admin in channel ${channel}`);
-        return false;
+        failures.push(`${channel}: '${member.status}'`);
       }
+    } catch (err: any) {
+      failures.push(`${channel}: ${err.message}`);
     }
+  }
 
-    return true;
-  } catch (error: any) {
-    console.error("❌ Bot admin check failed:", error.message);
+  if (failures.length > 0) {
+    console.error("❌ Bot is not an admin in the following channels:");
+    failures.forEach((f) => console.error(` - ${f}`));
     return false;
   }
+
+  return true;
 }
-
-/* ------------------------------------------------------------------ */
-/*                  USER SUBSCRIPTION CACHE (ONLY HERE)                 */
-/* ------------------------------------------------------------------ */
-
-type SubscriptionCacheEntry = {
-  value: boolean;
-  expiresAt: number;
-};
-
-const subscriptionCache = new Map<string, SubscriptionCacheEntry>();
-const SUBSCRIPTION_TTL = 2 * 60 * 1000; // 2 minutes
 
 export async function checkIfUserIsSubscribed(
   telegramId: string,
   channelUsername: string
 ): Promise<boolean> {
-  const cacheKey = `${telegramId}:${channelUsername}`;
-  const cached = subscriptionCache.get(cacheKey);
-
-  // Return cached result if valid
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached.value;
-  }
-
   const isBotAdmin = await checkIfBotIsAdmin();
   if (!isBotAdmin) return false;
 
   try {
-    const member = await telegramQueue.add(() =>
-      bot.api.getChatMember(channelUsername, Number(telegramId))
+    const member = await bot.api.getChatMember(
+      channelUsername,
+      Number(telegramId)
     );
 
-    const isSubscribed = ["member", "administrator", "creator"].includes(
-      member.status
-    );
+    const subscribedStatuses = ["member", "administrator", "creator"] as const;
 
-    subscriptionCache.set(cacheKey, {
-      value: isSubscribed,
-      expiresAt: Date.now() + SUBSCRIPTION_TTL,
-    });
-
-    return isSubscribed;
-  } catch (error: any) {
+    return subscribedStatuses.includes(member.status as any);
+  } catch (err: any) {
     console.warn(
-      `⚠️ Failed to check subscription for user ${telegramId} in ${channelUsername}:`,
-      error.message
+      `⚠️ Failed to check subscription for user ${telegramId} in ${channelUsername}: ${err.message}`
     );
     return false;
   }
 }
-
-/* ------------------------------------------------------------------ */
-/*                       BROADCAST MESSAGES                              */
-/* ------------------------------------------------------------------ */
 
 export async function sendMessageToAllBotUsers(message: string) {
   const users = await prisma.user.findMany({
@@ -104,9 +140,12 @@ export async function sendMessageToAllBotUsers(message: string) {
     const targetId = Number(user.telegramId);
 
     try {
-      await telegramQueue.add(() => bot.api.sendMessage(targetId, message));
+      await bot.api.sendMessage(targetId, message);
+
+      // Prevent flood limits
+      await new Promise((resolve) => setTimeout(resolve, 50));
     } catch (error: any) {
-      console.warn(`⚠️ Failed to send to ${targetId}:`, error.message);
+      console.log(`⚠️ Failed to send to ${targetId}:`, error.message);
     }
   }
 
