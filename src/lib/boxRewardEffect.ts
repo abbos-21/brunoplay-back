@@ -108,7 +108,7 @@ export const rewardEffects: Record<
     await tx.gifts.create({
       data: {
         userId,
-        name: "Some gift",
+        name: "Some gift (from box)",
       },
     });
   },

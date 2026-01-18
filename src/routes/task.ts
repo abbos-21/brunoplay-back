@@ -33,7 +33,7 @@ router.post("/check-subscription", async (req: Request, res: Response) => {
 
     const isSubscribed = await checkIfUserIsSubscribed(
       user.telegramId,
-      channelUsername
+      channelUsername,
     );
 
     if (!isSubscribed) {
@@ -50,6 +50,7 @@ router.post("/check-subscription", async (req: Request, res: Response) => {
       where: { id: user.id },
       data: {
         coins: { increment: REWARD_FOR_SUBSCRIPTION },
+        totalCoins: { increment: REWARD_FOR_SUBSCRIPTION },
         subscriptions: JSON.stringify(userSubscriptionsArray),
       },
     });
@@ -85,7 +86,7 @@ router.get("/", async (req: Request, res: Response) => {
     const userSubscriptionsArray = JSON.parse(user.subscriptions);
     const userSubscriptionsArraySet = new Set(userSubscriptionsArray);
     const tasks = CHANNELS.filter(
-      (item) => !userSubscriptionsArraySet.has(item)
+      (item) => !userSubscriptionsArraySet.has(item),
     );
 
     return res.status(200).json({

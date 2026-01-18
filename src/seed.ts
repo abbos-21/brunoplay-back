@@ -42,13 +42,19 @@ async function main() {
     },
   });
 
+  await prisma.user.updateMany({
+    data: {
+      totalCoins: 0,
+    },
+  });
+
   const start = new Date();
   const end = new Date(start);
   end.setDate(start.getDate() + 30);
 
   await prisma.season.create({
     data: {
-      name: "Season 1",
+      name: "Season 2",
       start,
       end,
     },

@@ -134,19 +134,18 @@ export const REFERRAL_REWARDS = {
   13: 1050000,
 };
 
-export const SPIN_WHEEL_COOLDOWN_HOURS = 0.05;
+export const SPIN_WHEEL_COOLDOWN_HOURS = 24;
 
 export const SPIN_WHEEL_PROBABILITY_DATA = {
-  50: 50.65,
+  1: 0,
+  13: 0.25,
+  50: 50.75,
   100: 27,
   150: 16,
   250: 3,
   300: 2,
   400: 1,
-  13: 0.3,
-  1: 0.05,
 };
-
 export const ENERGY_PRICE = 25;
 export const HEALTH_PRICE = 25;
 
@@ -242,5 +241,24 @@ export const CHANNELS = [
   "@CoinUPuz",
   "@coinup_projects",
   "@brunoplay_chat",
+  "@zrbtua",
+  "@perviu1million",
+  "@tmton",
+  "@TON_Elixir",
+  "@Crypto_Meteora",
+  "@CryptoZaryad",
+  "@kopee4ka_k_kopee4ke1",
+  "@cryptomaxbablo",
+  "@Hamsters_APProach",
+  "@bronia_tg",
+  "@cryptoproject25",
+  "@nekro_ton",
+  "@marsiklovw",
+  "@bydvtemesdenchicom",
+  "@OlegAleksenko1988",
+  "@Crypt0Hud",
+  "@criptodro",
+  "@lopsamff",
+  "@cryptcharmer",
 ];
 export const REWARD_FOR_SUBSCRIPTION = 20;

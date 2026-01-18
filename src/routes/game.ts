@@ -83,11 +83,11 @@ router.post("/sync", async (req: Request, res: Response) => {
   // Drain energy & health FULLY even if vault is full
   const newEnergy = Math.max(
     user.currentEnergy - maxDrainSeconds * user.energyPerSecond,
-    0
+    0,
   );
   const newHealth = Math.max(
     user.currentHealth - maxDrainSeconds * user.healthPerSecond,
-    0
+    0,
   );
 
   let stop = false;
@@ -311,7 +311,7 @@ router.post("/spin-wheel", async (req: Request, res: Response) => {
     const gift = await prisma.gifts.create({
       data: {
         userId: id,
-        name: "Some gift",
+        name: "Some gift (from spin)",
       },
     });
 
