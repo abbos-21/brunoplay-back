@@ -63,14 +63,25 @@ bot.on("message:successful_payment", async (ctx) => {
   const userId = payload.userId;
   const product = payload.product;
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      canPlayBox: true,
-    },
-  });
+  if (product === "play-box") {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        canPlayBox: true,
+      },
+    });
 
-  await ctx.reply("✅ Payment successful! You can play the box game now.");
+    await ctx.reply("✅ Payment successful! You can play the box game now.");
+  } else if (product === "play-car") {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        canPlayCar: true,
+      },
+    });
+
+    await ctx.reply("✅ Payment successful! You can play the car game now.");
+  }
 });
 
 bot.on("pre_checkout_query", async (ctx) => {

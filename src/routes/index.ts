@@ -11,6 +11,7 @@ import leaderboardRouter from "./leaderboard";
 import blockListRouter from "./block-list";
 import starsRouter from "./stars";
 import boxRouter from "./box";
+import carGameRouter from "./car-game";
 import prisma from "../prisma";
 
 const router = express.Router();
@@ -27,6 +28,7 @@ router.use("/leaderboard", leaderboardRouter);
 router.use("/block-list", blockListRouter);
 router.use("/stars", starsRouter);
 router.use("/box", boxRouter);
+router.use("/car-game", carGameRouter);
 
 router.get("/next-refill-update", async (req, res) => {
   const job = await prisma.jobState.findUnique({

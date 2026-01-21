@@ -74,6 +74,7 @@ model User {
 
   subscriptions      String @default("[]")
   canPlayBox         Boolean @default(false)
+  canPlayCar         Boolean @default(false)
   energyRefillLimit  Int     @default(20)
   healthRefillLimit  Int     @default(20)
 }

@@ -24,7 +24,35 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
     payload, //payload
     "", // For Telegram Stars payment this should be empty
     "XTR", //currency
-    [{ amount: 10, label: "Play box" }]
+    [{ amount: 10, label: "Play box" }],
+  );
+
+  res.status(200).json({
+    success: true,
+    data: { invoiceLink },
+  });
+});
+
+router.post("/create-car-game-invoice", async (req: Request, res: Response) => {
+  if (!req.user.id) {
+    return res.status(400).json({
+      success: false,
+      message: "Not authorized",
+    });
+  }
+
+  const payload = JSON.stringify({
+    userId: req.user.id,
+    product: "play-car",
+  });
+
+  const invoiceLink = await bot.api.createInvoiceLink(
+    "Play car", //title
+    "Play the car game", //description
+    payload, //payload
+    "", // For Telegram Stars payment this should be empty
+    "XTR", //currency
+    [{ amount: 1, label: "Play car" }],
   );
 
   res.status(200).json({
