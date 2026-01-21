@@ -20,10 +20,8 @@ export async function startServer() {
 
   app.use(express.json());
 
-  await bot.api.deleteWebhook({ drop_pending_updates: true });
-  await bot.start();
+  bot.start();
   await checkIfBotIsAdmin();
-
 
   // await sendMessageToAllBotUsers(
   //   "We are back online! Start earning coins and making money again!"
