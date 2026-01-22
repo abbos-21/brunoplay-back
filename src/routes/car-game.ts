@@ -49,7 +49,7 @@ router.post("/reward", async (req: Request, res: Response) => {
     });
   }
 
-  if (coins > 1000) {
+  if (coins > 800) {
     return res.status(400).json({
       success: false,
       message: "Coin limit exceeded. You might be hacking",
