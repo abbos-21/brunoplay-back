@@ -90,7 +90,7 @@ model Stars {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  comment String
+  comment String?
 
   amount Int
 
