@@ -62,6 +62,7 @@ router.post("/reward", async (req: Request, res: Response) => {
     },
     data: {
       coins: { increment: coins },
+      canPlayCar: false,
     },
   });
 
