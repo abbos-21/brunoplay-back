@@ -74,6 +74,7 @@ model User {
 
   subscriptions      String @default("[]")
   canPlayBox         Boolean @default(false)
+  boxRewardIds   String  @default("[]")
   canPlayCar         Boolean @default(false)
   energyRefillLimit  Int     @default(20)
   healthRefillLimit  Int     @default(20)
@@ -88,6 +89,8 @@ model Stars {
   userId Int
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  comment String
 
   amount Int
 
