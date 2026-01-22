@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 
 export type Tx = Prisma.TransactionClient;
 
-export const boxRewardEffects: Record<
+export const rewardEffects: Record<
   number,
   (tx: Tx, userId: number) => Promise<void>
 > = {
