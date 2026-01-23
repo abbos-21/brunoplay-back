@@ -130,6 +130,18 @@ function calculateRunningBalance(transactions: StarTx[]) {
    RENDER LEDGER (SHARED)
 ======================= */
 
+function formatDateTime(date: Date): string {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mi = String(date.getMinutes()).padStart(2, "0");
+  const ss = String(date.getSeconds()).padStart(2, "0");
+
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
 async function renderStarsLedger(ctx: any, page: number, edit = false) {
   const txs = await getAllStarTransactions();
   const ledger = calculateRunningBalance(txs);
@@ -144,9 +156,11 @@ async function renderStarsLedger(ctx: any, page: number, edit = false) {
   let text = `⭐ Stars Ledger (Page ${safePage}/${totalPages})\n\n`;
 
   for (const tx of pageItems) {
+    const dateTime = formatDateTime(tx.date);
+
     text +=
       `${tx.type === "IN" ? "➕" : "➖"} ${tx.amount} ⭐ | ${tx.partner}\n` +
-      `Balance: ${tx.balanceAfter}\n\n`;
+      `🕒 ${dateTime}\n\n`;
   }
 
   const currentBalance =
