@@ -86,7 +86,7 @@ function calculateRunningBalance(transactions: StarTx[]) {
   });
 }
 
-const ALLOWED_USERS = new Set<number>([123456789, 987654321]);
+const ALLOWED_USERS = new Set<number>([1031081189]);
 
 bot.command("stars_tx", async (ctx) => {
   if (!ctx.from || !ALLOWED_USERS.has(ctx.from.id)) {
