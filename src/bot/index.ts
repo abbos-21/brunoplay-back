@@ -77,7 +77,7 @@ async function getAllStarTransactions(): Promise<StarTx[]> {
   while (true) {
     const res = await bot.api.raw.getStarTransactions({
       offset: offset as any, // grammY typing workaround
-      limit: 100,
+      // limit: 100,
     });
 
     if (res.transactions.length === 0) break;
