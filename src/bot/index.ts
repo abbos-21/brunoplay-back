@@ -1,33 +1,7 @@
-// import { Telegraf } from "telegraf";
-// import { BOT_TOKEN, WEB_APP_URL } from "../config/env";
-
-// if (!BOT_TOKEN) {
-//   throw new Error("BOT_TOKEN is missing in .env");
-// }
-
-// export const bot = new Telegraf(BOT_TOKEN);
-
-// bot.start((ctx) => {
-//   ctx.reply("👋 Welcome! Tap below to open the Mini App:", {
-//     reply_markup: {
-//       inline_keyboard: [
-//         [
-//           {
-//             text: "🚀 Open Mini App",
-//             web_app: { url: WEB_APP_URL },
-//           },
-//         ],
-//       ],
-//     },
-//   });
-// });
-
-// bot.command("help", (ctx) => ctx.reply("This bot powers the Mini App!"));
-
-import { Bot, Context } from "grammy";
+import { Bot } from "grammy";
 import { BOT_TOKEN, WEB_APP_URL } from "../config/env";
 import prisma from "../prisma";
-import { StarTransaction, TransactionPartnerUser } from "grammy/types";
+import { StarTransaction } from "grammy/types";
 
 if (!BOT_TOKEN) {
   throw new Error("BOT_TOKEN is missing in .env");
@@ -35,12 +9,67 @@ if (!BOT_TOKEN) {
 
 export const bot = new Bot(BOT_TOKEN);
 
+/* =======================
+   TYPES
+======================= */
+
 type StarTx = {
   id: string;
   amount: number;
   incoming: boolean;
   date: number;
+  partner: string;
 };
+
+/* =======================
+   CONSTANTS
+======================= */
+
+const ALLOWED_USERS = new Set<number>([1031081189]);
+const PAGE_SIZE = 10;
+
+/* =======================
+   HELPERS
+======================= */
+
+function getPartnerLabel(tx: StarTransaction): string {
+  const src = tx.source;
+
+  if (!src) return "Unknown";
+
+  switch (src.type) {
+    case "user":
+      return src.user.username
+        ? `@${src.user.username}`
+        : `${src.user.first_name}${src.user.last_name ? " " + src.user.last_name : ""}`;
+
+    case "chat":
+      return src.chat.title ?? "Chat";
+
+    case "affiliate_program":
+      return "🤝 Affiliate Program";
+
+    case "fragment":
+      return "🧩 Fragment";
+
+    case "telegram_ads":
+      return "📢 Telegram Ads";
+
+    case "telegram_api":
+      return "⚙️ Telegram API";
+
+    case "other":
+      return "❓ Other";
+
+    default:
+      // Exhaustive check (future-proof)
+      return "Unknown";
+  }
+}
+
+/* =======================
+   FETCH STAR TRANSACTIONS
+======================= */
 
 async function getAllStarTransactions(): Promise<StarTx[]> {
   const all: StarTx[] = [];
@@ -49,7 +78,7 @@ async function getAllStarTransactions(): Promise<StarTx[]> {
 
   while (true) {
     const res = await bot.api.raw.getStarTransactions({
-      offset: offset as any, // grammY typing bug workaround
+      offset: offset as any, // grammY typing workaround
       limit: 100,
     });
 
@@ -61,13 +90,14 @@ async function getAllStarTransactions(): Promise<StarTx[]> {
         amount: tx.amount,
         date: tx.date,
         incoming: tx.source?.type === "user",
+        partner: getPartnerLabel(tx),
       });
     }
 
     const lastTx = res.transactions[res.transactions.length - 1];
     const newLastId = lastTx?.id;
 
-    // 🔐 HARD STOP (prevents infinite loop)
+    // HARD STOP (prevents infinite loop)
     if (!newLastId || newLastId === lastId) break;
 
     lastId = newLastId;
@@ -76,6 +106,10 @@ async function getAllStarTransactions(): Promise<StarTx[]> {
 
   return all;
 }
+
+/* =======================
+   BALANCE CALCULATION
+======================= */
 
 function calculateRunningBalance(transactions: StarTx[]) {
   let balance = 0;
@@ -89,12 +123,15 @@ function calculateRunningBalance(transactions: StarTx[]) {
       date: new Date(tx.date * 1000),
       type: tx.incoming ? "IN" : "OUT",
       amount: tx.amount,
+      partner: tx.partner,
       balanceAfter: balance,
     };
   });
 }
 
-const ALLOWED_USERS = new Set<number>([1031081189]);
+/* =======================
+   COMMANDS
+======================= */
 
 bot.command("stars_tx", async (ctx) => {
   if (!ctx.from || !ALLOWED_USERS.has(ctx.from.id)) {
@@ -102,21 +139,35 @@ bot.command("stars_tx", async (ctx) => {
     return;
   }
 
+  const page = Math.max(1, Number(ctx.match?.trim() || "1"));
+
   const txs = await getAllStarTransactions();
   const ledger = calculateRunningBalance(txs);
 
-  let text = "⭐ Stars Ledger\n\n";
+  const totalPages = Math.max(1, Math.ceil(ledger.length / PAGE_SIZE));
+  const start = (page - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
 
-  for (const tx of ledger.slice(-10)) {
+  const pageItems = ledger.slice(start, end);
+
+  if (pageItems.length === 0) {
+    await ctx.reply("No transactions on this page.");
+    return;
+  }
+
+  let text = `⭐ Stars Ledger (Page ${page}/${totalPages})\n\n`;
+
+  for (const tx of pageItems) {
     text +=
       `${tx.type === "IN" ? "➕" : "➖"} ` +
-      `${tx.amount} ⭐ | Balance: ${tx.balanceAfter}\n`;
+      `${tx.amount} ⭐ | ${tx.partner}\n` +
+      `Balance: ${tx.balanceAfter}\n\n`;
   }
 
   const currentBalance =
     ledger.length > 0 ? ledger[ledger.length - 1].balanceAfter : 0;
 
-  text += `\n💰 Current balance: ${currentBalance} ⭐`;
+  text += `💰 Current balance: ${currentBalance} ⭐`;
 
   await ctx.reply(text);
 });
@@ -137,8 +188,16 @@ bot.command("start", async (ctx) => {
 });
 
 bot.command("help", async (ctx) => {
-  await ctx.reply("This bot powers the Mini App!");
+  await ctx.reply(
+    "Available commands:\n" +
+      "/stars_tx — View Stars transactions\n" +
+      "/stars_tx 2 — View page 2\n",
+  );
 });
+
+/* =======================
+   PAYMENTS
+======================= */
 
 bot.on("message:successful_payment", async (ctx) => {
   const payment = ctx.message.successful_payment;
@@ -146,25 +205,22 @@ bot.on("message:successful_payment", async (ctx) => {
   if (payment.currency !== "XTR") return;
 
   const payload = JSON.parse(payment.invoice_payload);
-
   const userId = payload.userId;
   const product = payload.product;
 
   if (product === "play-box") {
     await prisma.user.update({
       where: { id: userId },
-      data: {
-        canPlayBox: true,
-      },
+      data: { canPlayBox: true },
     });
 
     await ctx.reply("✅ Payment successful! You can play the box game now.");
-  } else if (product === "play-car") {
+  }
+
+  if (product === "play-car") {
     await prisma.user.update({
       where: { id: userId },
-      data: {
-        canPlayCar: true,
-      },
+      data: { canPlayCar: true },
     });
 
     await ctx.reply("✅ Payment successful! You can play the car game now.");
