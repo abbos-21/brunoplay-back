@@ -45,10 +45,11 @@ type StarTx = {
 async function getAllStarTransactions(): Promise<StarTx[]> {
   const all: StarTx[] = [];
   let offset: string | undefined;
+  let lastId: string | undefined;
 
   while (true) {
     const res = await bot.api.raw.getStarTransactions({
-      offset: offset as unknown as number,
+      offset: offset as any, // grammY typing bug workaround
       limit: 100,
     });
 
@@ -63,7 +64,14 @@ async function getAllStarTransactions(): Promise<StarTx[]> {
       });
     }
 
-    offset = res.transactions[res.transactions.length - 1].id;
+    const lastTx = res.transactions[res.transactions.length - 1];
+    const newLastId = lastTx?.id;
+
+    // 🔐 HARD STOP (prevents infinite loop)
+    if (!newLastId || newLastId === lastId) break;
+
+    lastId = newLastId;
+    offset = newLastId;
   }
 
   return all;
