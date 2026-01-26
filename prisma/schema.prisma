@@ -66,6 +66,7 @@ model User {
   stars       Stars[]
   gifts       Gifts[]
   actions     Action[]
+  boxSession  BoxSession[]
 
   // Flags
   isBlocked Boolean @default(false)
@@ -74,7 +75,6 @@ model User {
 
   subscriptions      String @default("[]")
   canPlayBox         Boolean @default(false)
-  boxRewardIds   String  @default("[]")
   canPlayCar         Boolean @default(false)
   energyRefillLimit  Int     @default(20)
   healthRefillLimit  Int     @default(20)
@@ -205,3 +205,15 @@ model JobState {
   lastRunAt DateTime
   nextRunAt DateTime
 }
+
+model BoxSession {
+  id        String   @id
+  userId    Int
+  rewards   Json     // server-generated rewards
+  opened    Int      @default(0)
+  claimed   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+

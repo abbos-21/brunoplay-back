@@ -39,6 +39,14 @@ router.post("/", async (req: Request, res: Response) => {
         referredById = referrer.id;
     }
 
+    if (existingUser?.isBlocked === true) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Your access to our Telegram bot has been blocked for violating the terms of service.",
+      });
+    }
+
     const updateFields = {
       firstName: user.first_name || null,
       lastName: user.last_name || null,
