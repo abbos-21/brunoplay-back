@@ -67,6 +67,7 @@ model User {
   gifts       Gifts[]
   actions     Action[]
   boxSession  BoxSession[]
+  carGameSession CarGameSession[]
 
   // Flags
   isBlocked Boolean @default(false)
@@ -217,3 +218,18 @@ model BoxSession {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// Add this model to your schema
+model CarGameSession {
+  id        String   @id @default(uuid())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  startTime DateTime @default(now())
+  endTime   DateTime?
+  
+  score     Int      @default(0)
+  coins     Int      @default(0)
+  status    String   @default("ACTIVE") // ACTIVE, COMPLETED, FAILED
+
+  @@index([userId])
+}
