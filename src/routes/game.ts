@@ -325,6 +325,7 @@ router.post("/spin-wheel", async (req: Request, res: Response) => {
       data: {
         userId: id,
         amount: 13,
+        comment: "From spin",
       },
     });
 
